@@ -1,47 +1,57 @@
-# Cosine Distance vs Other Distance Metrics for Text Document Similarity
+# Cosine Distance vs. Traditional Distance Metrics for TF-IDF Text Classification
 
-**Author:** Ayaz Ahmad
+Code and results for the paper *"Performance Evaluation of Cosine Distance and
+Traditional Distance Metrics for TF-IDF-Based Text Classification."*
 
-This project compares four distance measures — **Cosine, Euclidean, Manhattan, and Jaccard** — for finding similar text documents. Documents are turned into TF-IDF vectors and classified with a k-Nearest Neighbors classifier. The best measure is the one that classifies documents most correctly.
+The experiment compares four distance measures — **cosine, Euclidean, Manhattan,
+and Jaccard** — for classifying text with a k-Nearest Neighbors classifier over
+TF-IDF features, using the public **20 Newsgroups** benchmark.
 
-## Files
+## Dataset
 
-| File | What it is |
-|------|------------|
-| `cosineDis.py` | The experiment code |
-| `Dataset.csv` | Sample dataset (60 documents, 4 categories) |
-| `cosine_distance_paper.docx` | The research paper |
+20 Newsgroups is fetched automatically by scikit-learn on first run, so **no data
+files need to be downloaded manually**. The experiment uses four categories:
+
+- `comp.graphics` (technology)
+- `rec.sport.baseball` (sports)
+- `sci.med` (health)
+- `talk.politics.guns` (politics)
+
+This gives 2,256 documents. The dataset's predefined split is used: 1,579 for
+training and 677 for testing. Headers, footers, and quoted reply text are removed
+so the classifier learns from the actual content rather than metadata.
 
 ## How to run
 
-1. Install the libraries (one time):
-   ```
-   pip install scikit-learn pandas matplotlib
-   ```
-2. Keep `cosineDis.py` and `Dataset.csv` in the same folder, then run:
-   ```
-   python cosineDis.py
-   ```
-3. It prints a results table and saves:
-   - `results_table.csv` — the scores
-   - `f1_comparison.png` — a bar chart
-
-## Use the bigger dataset (optional)
-
-For stronger results, open `cosineDis.py` and change:
-```python
-USE_20NEWSGROUPS = False
+```bash
+pip install -r requirements.txt
+python twenty_newsgroups_experiment.py
 ```
-to
-```python
-USE_20NEWSGROUPS = True
-```
-This uses the 20 Newsgroups dataset (thousands of documents). It downloads automatically the first time and needs an internet connection.
 
-## Result
+The first run downloads the dataset (~14 MB) and caches it locally. The script
+prints a results table and saves `results_table.csv` and `f1_comparison.png`.
 
-On the sample dataset, **cosine distance** performed best, because it compares the direction of document vectors rather than their length. This makes it well suited to text, where documents vary in length.
+## Results
 
-## License
+k-NN with k = 5, macro-averaged metrics on the 677-document test set:
 
-MIT
+| Measure    | Accuracy | Precision | Recall | F1-Score |
+|------------|----------|-----------|--------|----------|
+| Cosine     | 0.900    | 0.905     | 0.900  | 0.899    |
+| Jaccard    | 0.808    | 0.822     | 0.808  | 0.808    |
+| Euclidean  | 0.479    | 0.548     | 0.479  | 0.362    |
+| Manhattan  | 0.266    | 0.137     | 0.266  | 0.156    |
+
+Cosine distance performs best because it compares vector direction rather than
+magnitude, making it robust to differences in document length. Jaccard runs on the
+binarized (present/absent) form of the features, since it is a set measure.
+
+## Requirements
+
+Python 3, plus the packages listed in `requirements.txt`.
+
+## Notes on reproducibility
+
+Jaccard distance is computed on binarized features (term present/absent) because it
+is defined on sets, while the other three measures use the TF-IDF vectors directly.
+Exact scores may shift slightly with different scikit-learn versions.
